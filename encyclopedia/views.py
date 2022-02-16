@@ -2,6 +2,7 @@ from django.shortcuts import render
 import markdown
 from . import util
 import random
+import os
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -60,3 +61,24 @@ def randomPage(request):
     return render(request, "encyclopedia/title.html",{
         "title": entryTitle, "body":html
          })
+
+def editPage(request):
+     t=request.GET.get('title')
+     f = util.get_entry(t)
+     if f is not None:
+        return render(request, "encyclopedia/editPage.html",{
+        "title": t, "body":f
+         })
+     else :
+        return render(request, "encyclopedia/notFound.html")
+
+def saveEditPage(request):
+    title=request.GET.get('title')
+    body=request.GET.get('markdownBody')
+    f = util.get_entry(title)
+    util.save_entry(title,body)
+    newPage=util.get_entry(title)
+    html = markdown.markdown(newPage)
+    return render(request, "encyclopedia/title.html",{
+    "title": title, "body":html
+    })
